@@ -1,0 +1,9 @@
+#Gaol
+int32 target
+---
+#Result
+int32[] sequence
+---
+#Feedback
+int32 current
+

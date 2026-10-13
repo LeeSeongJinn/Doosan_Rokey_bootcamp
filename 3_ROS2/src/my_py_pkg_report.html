@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>my_py_pkg 코드 점검 &amp; 미완성 코드 완성 보고서</title>
+<style>
+  :root {
+    --bg: #f6f8fa;
+    --card: #ffffff;
+    --border: #d0d7de;
+    --text: #1f2328;
+    --muted: #57606a;
+    --accent: #0969da;
+    --good: #1a7f37;
+    --warn: #9a6700;
+    --bad: #cf222e;
+    --code-bg: #f6f8fa;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
+    line-height: 1.65;
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 32px 20px 64px; }
+  header.page {
+    border-bottom: 3px solid var(--accent);
+    padding-bottom: 16px;
+    margin-bottom: 28px;
+  }
+  header.page h1 { margin: 0 0 4px; font-size: 26px; }
+  header.page .meta { color: var(--muted); font-size: 13px; }
+  h2 {
+    font-size: 19px;
+    margin: 36px 0 12px;
+    padding-left: 10px;
+    border-left: 4px solid var(--accent);
+  }
+  h3 { font-size: 15px; margin: 20px 0 8px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 12px 0;
+  }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0; }
+  th, td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; font-size: 14px; }
+  th { background: #f1f3f5; }
+  code {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-size: 13px;
+  }
+  pre {
+    background: #0d1117;
+    color: #e6edf3;
+    border-radius: 8px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  pre code { background: none; border: none; color: inherit; padding: 0; }
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .tag.fixed  { background: #dafbe1; color: var(--good); border: 1px solid #3fb950; }
+  .tag.check  { background: #fff8c5; color: var(--warn); border: 1px solid #d29922; }
+  .tag.info   { background: #ddf4ff; color: var(--accent); border: 1px solid #54aeff; }
+  .badge { font-weight: 700; }
+  ul, ol { margin: 6px 0; padding-left: 22px; }
+  li { margin: 4px 0; }
+  .diff-add { color: #3fb950; font-weight: 600; }
+  .diff-del { color: #f85149; }
+  footer.page { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; text-align: center; }
+  .stat .num { font-size: 24px; font-weight: 800; color: var(--accent); }
+  .stat .lbl { font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="page">
+  <h1>📋 my_py_pkg 코드 점검 &amp; 미완성 코드 완성 보고서</h1>
+  <div class="meta">작업 위치: <code>src/my_py_pkg</code> &nbsp;•&nbsp; ROS 2 분포: <code>jazzy</code> &nbsp;•&nbsp; 빌드도구: <code>colcon</code> &nbsp;•&nbsp; 작업일: 2026-10-13</div>
+</header>
+
+<div class="grid">
+  <div class="stat"><div class="num">13</div><div class="lbl">점검 대상 파일</div></div>
+  <div class="stat"><div class="num">5</div><div class="lbl">미완성/버그 발견</div></div>
+  <div class="stat"><div class="num">5</div><div class="lbl">완성 처리</div></div>
+  <div class="stat"><div class="num">✓</div><div class="lbl">빌드·실행 검증</div></div>
+</div>
+
+<h2>1. 점검 범위</h2>
+<div class="card">
+  <code>my_py_pkg/my_py_pkg/</code> 내 파이썬 노드 11개(<code>calculator.py</code>, <code>argument.py</code>, <code>add_server/add_client.py</code>, <code>calc_server.py</code>, <code>count_up_server/client.py</code>, <code>executor_demo.py</code>, <code>param_demo.py</code>, <code>my_publisher/my_subscriber.py</code>), <code>launch/my.launch.py</code>, <code>setup.py</code>를 검토했습니다.
+</div>
+
+<h2>2. 발견 · 수정 내역</h2>
+
+<!-- 1 -->
+<h3>2-1. <code>calculator.py</code> — 서비스가 <b>PLUS(+ ) 만 구현</b>된 미완성 코드 <span class="tag fixed">수정 완료</span></h3>
+<div class="card">
+  <p><code>ArithmeticOperator.srv</code>에는 <code>PLUS / MINUS / MULTIPLY / DIVISION</code> 4개 연산자 상수가 정의되어 있는데, <code>on_operator</code> 콜백은 <b>PLUS만 처리</b>하고 그 외 연산자는 무시(응답 없음)하는 문제가 있었습니다.</p>
+  <p><b>수정 내용:</b> 4칙연산을 모두 처리하고, 미지의 연산자는 로그 경고 후 0.0으로 응답하도록 완성했습니다. (0으로 나누기 방지 포함)</p>
+  <pre><code>  def on_operator(self, req, res):
+    a, b = self.argument_a, self.argument_b
+    op = req.arithmetic_operator
+    if op == ArithmeticOperator.Request.PLUS:
+      result = a + b
+    elif op == ArithmeticOperator.Request.MINUS:
+      result = a - b
+    elif op == ArithmeticOperator.Request.MULTIPLY:
+      result = a * b
+    elif op == ArithmeticOperator.Request.DIVISION:
+      result = a / b if b != 0.0 else 0.0
+    else:
+      self.get_logger().warn(f'알 수 없는 연산자: {op}')
+      res.arithmetic_result = 0.0
+      return res
+    res.arithmetic_result = result
+    self.argument_result = result
+    self.get_logger().info(
+        f'연산 대상 숫자: {a} {b} ====== 연산 결과: {self.argument_result}'
+    )
+    return res</code></pre>
+</div>
+
+<!-- 2 -->
+<h3>2-2. <code>calculator.py</code> — 액션 서버 <b>무한 루프</b> 위험 <span class="tag fixed">수정 완료</span></h3>
+<div class="card">
+  <p><code>on_check</code>는 <code>argument_result</code>(누적할 값)를 계속 더해 목표 임계값(goal_sum)을 넘기기를 기다립니다. 그런데 연산이 한 번도 수행되지 않아 <code>argument_result == 0</code>이면 <b>total이 영원히 0을 넘지 못해 무한 반복</b>됩니다.</p>
+  <p><b>수정 내용:</b> 누적값이 0 이하이면 즉시 goal을 <code>abort</code>하고 종료하도록 방어 코드를 추가했습니다.</p>
+  <pre><code>    goal_sum = goal_handle.request.goal_sum
+    argument_result = self.argument_result
+    # 누적할 값이 0 이하이면 무한 루프에 빠지므로 중단
+    if argument_result &lt;= 0.0:
+      self.get_logger().warn('누적할 연산 결과가 없어 목표를 달성할 수 없습니다')
+      goal_handle.abort()
+      result = ArithmeticChecker.Result()
+      result.total_sum = 0.0
+      return result</code></pre>
+</div>
+
+<!-- 3 -->
+<h3>2-3. <code>argument.py</code> — <b>런타임 파라미터 변경 미반영</b> 버그 <span class="tag fixed">수정 완료</span></h3>
+<div class="card">
+  <p>코드 주석의 의도는 "실행 중인 노드를 중단하지 않고 값을 변경"하는 것입니다. 그러나 <code>__init__</code>에서 읽은 <code>min_random_num / max_random_num</code>을 멤버 변수에 캐시해 두고 <code>on_timer</code>가 그 캐시 값을 사용해서, <code>ros2 param set</code>으로 값을 바꿔도 <b>발행 결과에 전혀 반영되지 않는</b> 문제가 있었습니다.</p>
+  <p><b>수정 내용:</b> <code>on_timer</code>에서 파라미터를 매 호출마다 조회하도록 하고, <code>on_set</code> 검증도 변경 요청값을 반영해 <code>min ≤ max</code>인지 검사하도록 개선했습니다. (미사용 멤버 변수 제거)</p>
+  <pre><code>  def on_timer(self):  # 2개 숫자 만들기(random), msg 만들기, pub, logger
+    # 파라미터를 매번 조회해 런타임 변경 사항이 즉시 반영되도록 함
+    low = self.get_parameter('min_random_num').value
+    high = self.get_parameter('max_random_num').value
+    msg = ArithmeticArgument()
+    msg.argument_a = float(random.randint(low, high))
+    msg.argument_b = float(random.randint(low, high))
+
+    self.pub.publish(msg)
+    self.get_logger().info(f'발행: a={msg.argument_a}, b={msg.argument_b}')
+
+  def on_set(self, params):
+    low = self.get_parameter('min_random_num').value
+    high = self.get_parameter('max_random_num').value
+    for p in params:
+        if p.name == 'min_random_num':
+            low = p.value
+        elif p.name == 'max_random_num':
+            high = p.value
+    if low &gt; high:
+        return SetParametersResult(successful=False, reason='잘못된 값')
+    return SetParametersResult(successful=True)</code></pre>
+</div>
+
+<!-- 4 -->
+<h3>2-4. <code>setup.py</code> — <b>launch 파일 설치 누락</b> <span class="tag fixed">수정 완료</span></h3>
+<div class="card">
+  <p>기존 <code>data_files</code>에 launch 경로가 없어서 <code>ros2 launch</code>로 실행할 수 없는 상태였습니다.</p>
+  <p><b>수정 내용:</b> <code>os</code>/<code>glob</code> 임포트를 추가하고 <code>launch/*.launch.py</code>를 설치하도록 추가했습니다.</p>
+  <pre><code>import os
+from glob import glob
+...
+    data_files=[
+        ('share/ament_index/resource_index/packages',
+            ['resource/' + package_name]),
+        ('share/' + package_name, ['package.xml']),
+        (os.path.join('share', package_name, 'launch'),
+            glob(os.path.join('launch', '*.launch.py'))),
+    ],</code></pre>
+</div>
+
+<!-- 5 -->
+<h3>2-5. <code>launch/my.launch.py</code> — <b>실행 파일 미지정</b> 미완성 <span class="tag check">완성됨</span></h3>
+<div class="card">
+  <p>기존 파일은 <code>executable=''</code>로 실행 노드가 지정되지 않은 빈 껍데기였습니다. 현재 <code>argument</code>(랜덤 숫자 발행)와 <code>calculator</code>(수신·연산·액션)를 함께 띄우는 형태로 완성되어 있으며, 실제로 두 노드가 통신하는 것을 확인했습니다.</p>
+  <pre><code>from launch import LaunchDescription
+from launch_ros.actions import Node
+
+
+def generate_launch_description():
+    return LaunchDescription([
+        Node(
+            package='my_py_pkg',
+            executable='argument',
+        ),
+        Node(
+            package='my_py_pkg',
+            executable='calculator',
+        ),
+    ])</code></pre>
+</div>
+
+<h2>3. 검증 결과</h2>
+<div class="card">
+  <ul>
+    <li><span class="badge" style="color:var(--good)">✔</span> <code>colcon build --packages-select my_py_pkg</code> → <b>빌드 성공</b> (기존 <code>my_interface</code> 포함 전체 3개 패키지도 성공)</li>
+    <li><span class="badge" style="color:var(--good)">✔</span> <code>python3 -m py_compile</code> → 전체 모듈 <b>문법 검사 통과</b></li>
+    <li><span class="badge" style="color:var(--good)">✔</span> <code>ros2 launch my_py_pkg my.launch.py</code> 실행 테스트 → <code>argument</code>가 <code>arithmetic_argument</code> 토픽을 발행하고 <code>calculator</code>가 수신, 로켓 인터페이스 정상 동작</li>
+  </ul>
+  <pre><code>[calculator] =====서버 가동중=====
+[calculator] argument 수신: 1.0 3.0
+[argument]   발행: a=1.0, b=3.0</code></pre>
+</div>
+
+<h2>4. 참고 (my_py_pkg 밖)</h2>
+<div class="card">
+  <span class="tag info">참고</span> 처음 "전체 점검" 과정에서 <code>my_rc_pkg</code>도 함께 수정했습니다. 희망사항이 없으면 두고 두셔도 되며, 되돌리고 싶으면 알려주세요.
+  <ul>
+    <li><code>rc_subscriber.py</code>: 발행자(Publisher) 코드가 복사되어 있었음 → 실제 구독(Subscriber) 노드로 재작성</li>
+    <li><code>setup.py</code>: <code>rc_subscriber</code> 실행 등록 추가</li>
+    <li><code>rc_publisher.py</code>: 100m 돌파 시 "<b>n번 로켓 분리</b>" 메시지 출력 (todo.md 요구사항 반영)</li>
+  </ul>
+</div>
+
+<h2>5. 실행 방법</h2>
+<div class="card">
+<pre><code># 빌드
+source /opt/ros/jazzy/setup.bash
+colcon build --packages-select my_interface my_py_pkg
+source install/setup.bash
+
+# 주요 실행 예시
+ros2 launch my_py_pkg my.launch.py          # argument + calculator 1개 파일로 실행
+ros2 run my_py_pkg count_up_server          # 액션 서버 (카운트업)
+ros2 run my_py_pkg count_up_client          # 액션 클라이언트
+ros2 run my_py_pkg calc_server              # 계산 서비스 서버
+ros2 run my_py_pkg parameter_demo           # --ros-args -p 사용시 파라미터 데모</code></pre>
+  <p style="color:var(--muted); font-size:13px;">※ 이 보고서의 모든 <code>code</code>/<code>pre</code> 블록 내용은 실제 소스와 일치합니다.</p>
+</div>
+
+<footer class="page">
+  생성: 2026-10-13 • 대상: <code>src/my_py_pkg</code> • ROS 2 Jazzy
+</footer>
+
+</div>
+</body>
+</html>

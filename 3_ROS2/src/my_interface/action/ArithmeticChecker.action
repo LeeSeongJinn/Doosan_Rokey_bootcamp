@@ -1,0 +1,5 @@
+float32 goal_sum
+---
+float32 total_sum
+---
+float32 current_num
