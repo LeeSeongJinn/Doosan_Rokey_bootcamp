@@ -1,0 +1,15 @@
+# Goal - 문제 제시
+
+string word
+---
+
+#Result - 완료, 결과(r _ _), 시도 횟수
+
+bool done
+string board_result
+int32 tries
+---
+
+#Feedback - 문자, 진행상황
+string letter
+string board_progress

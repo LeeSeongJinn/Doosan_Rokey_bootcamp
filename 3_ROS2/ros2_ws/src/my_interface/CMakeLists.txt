@@ -13,6 +13,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "action/ArithmeticChecker.action"
   "msg/ArithmeticArgument.msg"
   "srv/ArithmeticOperator.srv"
+  "action/PlayRound.action"
+  "srv/RoundGuess.srv"
 )
 
 ament_export_dependencies(rosidl_default_runtime)
