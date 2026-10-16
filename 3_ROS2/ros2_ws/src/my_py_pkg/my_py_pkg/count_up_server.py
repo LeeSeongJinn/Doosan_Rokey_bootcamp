@@ -2,7 +2,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionServer
 from rclpy.executors import ExternalShutdownException
-from my_interface.action import CountUp
+from my_interfaces.action import CountUp
 import time
 
 class CountUpServer(Node):

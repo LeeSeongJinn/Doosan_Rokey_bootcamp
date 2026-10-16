@@ -220,7 +220,7 @@ def generate_launch_description():
 <h2>3. 검증 결과</h2>
 <div class="card">
   <ul>
-    <li><span class="badge" style="color:var(--good)">✔</span> <code>colcon build --packages-select my_py_pkg</code> → <b>빌드 성공</b> (기존 <code>my_interface</code> 포함 전체 3개 패키지도 성공)</li>
+    <li><span class="badge" style="color:var(--good)">✔</span> <code>colcon build --packages-select my_py_pkg</code> → <b>빌드 성공</b> (기존 <code>my_interfaces</code> 포함 전체 3개 패키지도 성공)</li>
     <li><span class="badge" style="color:var(--good)">✔</span> <code>python3 -m py_compile</code> → 전체 모듈 <b>문법 검사 통과</b></li>
     <li><span class="badge" style="color:var(--good)">✔</span> <code>ros2 launch my_py_pkg my.launch.py</code> 실행 테스트 → <code>argument</code>가 <code>arithmetic_argument</code> 토픽을 발행하고 <code>calculator</code>가 수신, 로켓 인터페이스 정상 동작</li>
   </ul>
@@ -243,7 +243,7 @@ def generate_launch_description():
 <div class="card">
 <pre><code># 빌드
 source /opt/ros/jazzy/setup.bash
-colcon build --packages-select my_interface my_py_pkg
+colcon build --packages-select my_interfaces my_py_pkg
 source install/setup.bash
 
 # 주요 실행 예시

@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
-from my_interface.action import CountUp
+from my_interfaces.action import CountUp
 
 class CountUpClient(Node):
     def __init__(self):

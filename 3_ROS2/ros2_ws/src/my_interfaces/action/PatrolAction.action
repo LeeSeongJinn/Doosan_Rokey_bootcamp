@@ -1,0 +1,14 @@
+#Gaol: 순찰영역
+string zone
+---
+#Result: 이상여부, 수행지역, 보고내용
+bool is_issue
+string zone
+string report
+
+
+---
+#Feedback: 현재위치, 이상여부, 이상내용
+bool is_issue
+string zone
+string report

@@ -1,5 +1,5 @@
 import rclpy
-from my_interface.srv import Calc
+from my_interfaces.srv import Calc
 from rclpy.node import Node
 
 

@@ -4,13 +4,13 @@ import rclpy
 
 from rclpy.node import Node
 
-from my_interface.msg import ArithmeticArgument
+from my_interfaces.msg import ArithmeticArgument
 
-from my_interface.srv import ArithmeticOperator
+from my_interfaces.srv import ArithmeticOperator
 
 from rclpy.action import ActionServer
 
-from my_interface.action import ArithmeticChecker
+from my_interfaces.action import ArithmeticChecker
 
 import time
 

@@ -1,10 +1,10 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
-from my_interface.action import PlayRound
+from my_interfaces.action import PlayRound
 from rclpy.executors import ExternalShutdownException
 from rclpy.action import ActionServer
-from my_interface.srv import RoundGuess
+from my_interfaces.srv import RoundGuess
 import time
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor

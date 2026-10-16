@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RokeyPatrol | ROS 순찰로봇 50대 기능 전략안</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Pretendard','Noto Sans KR',sans-serif;background:#0b1220;color:#e8edf5;line-height:1.6}
+header{background:linear-gradient(135deg,#0ea5e9,#6366f1 60%,#a855f7);padding:48px 24px;text-align:center}
+header .badge{display:inline-block;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);padding:6px 14px;border-radius:999px;font-size:13px;margin-bottom:16px}
+header h1{font-size:36px;font-weight:800;margin-bottom:12px}
+header p{opacity:.9;max-width:800px;margin:0 auto}
+.stats{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+.stat{background:rgba(255,255,255,.15);backdrop-filter:blur(8px);border-radius:12px;padding:12px 20px;min-width:160px}
+.stat b{font-size:24px;display:block}
+.container{max-width:1200px;margin:0 auto;padding:32px 20px}
+.exec{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:32px}
+.card{background:#131d33;border:1px solid #223052;border-radius:16px;padding:20px}
+.card h3{font-size:16px;margin-bottom:8px;color:#7dd3fc}
+.card p{font-size:14px;color:#cbd5e1}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}
+.filters button{background:#1e293b;color:#e2e8f0;border:1px solid #334155;padding:8px 14px;border-radius:999px;cursor:pointer;font-size:13px}
+.filters button.active{background:#0ea5e9;border-color:#0ea5e9;color:#fff;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+.feat{background:#fff;color:#0f172a;border-radius:16px;padding:18px;position:relative;overflow:hidden;border-left:6px solid #0ea5e9}
+.feat.diff{border-left-color:#a855f7}
+.feat.must{border-left-color:#22c55e}
+.feat .num{font-size:12px;font-weight:800;letter-spacing:.5px;color:#64748b}
+.feat h4{font-size:17px;margin:4px 0 8px}
+.feat p.desc{font-size:13.5px;color:#475569;margin-bottom:10px}
+.feat .meta{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:11px;padding:4px 8px;border-radius:999px;background:#f1f5f9;border:1px solid #e2e8f0}
+.tag.ros{background:#e0f2fe;border-color:#bae6fd;color:#0369a1;font-weight:700}
+.tag.biz{background:#fef3c7;border-color:#fde68a;color:#92400e}
+.pri{position:absolute;top:14px;right:14px;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px}
+.pri.P0{background:#dcfce7;color:#166534}
+.pri.P1{background:#fef9c3;color:#854d0e}
+.pri.P2{background:#f3e8ff;color:#6b21a8}
+footer{text-align:center;padding:32px;color:#64748b;font-size:13px}
+.search{width:100%;padding:12px 16px;border-radius:12px;border:1px solid #334155;background:#0f172a;color:#fff;margin-top:16px}
+h2.sec{margin:32px 0 12px;font-size:22px}
+.phase{background:linear-gradient(90deg,#131d33,#1e1b4b);border:1px solid #334155;border-radius:16px;padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.phase div h4{color:#a5b4fc}
+</style>
+</head>
+<body>
+<header>
+<div class="badge">ROKEYPATROL · C-LEVEL 전략 보고 · ROS2 기반</div>
+<h1>순찰로봇 사업 50대 기능 전략안</h1>
+<p>단순 경비가 아닌 <b>안전·데이터·구독수익</b>을 만드는 플랫폼. ROS2 모듈화로 빠르게 출시하고, RaaS로 반복매출을 확보합니다.</p>
+<div class="stats">
+<div class="stat"><b>50</b>핵심 기능</div>
+<div class="stat"><b>7</b>전략 카테고리</div>
+<div class="stat"><b>18</b>Must-Have (P0)</div>
+<div class="stat"><b>RaaS</b>구독 모델</div>
+</div>
+</header>
+<div class="container">
+<div class="exec">
+<div class="card"><h3>💡 CEO 관점 - Why Now?</h3><p>인건비 상승+중대재해처벌법+야간 인력난. 24시간 순찰 무인화가 공장·캠퍼스·아파트의 명확한 Pain. 경쟁사는 하드웨어 판매에 집중, 우리는 <b>관제+리포트 자동화</b>로 차별화 가능.</p></div>
+<div class="card"><h3>💰 CFO 관점 - 수익 모델</h3><p>① 로봇판매 + ② 월 150~300만원 RaaS(관제·저장·리포트) + ③ API연동 SI. 100대 운영시 연간 반복매출 약 24억원. 유지보수율 90% 이상 목표.</p></div>
+<div class="card"><h3>⚙️ CTO 관점 - 기술 전략</h3><p>ROS2 Humble + Nav2 + SROS2 보안기반. 모든 기능은 노드 단위 모듈. LiDAR+Vision+Edge AI(Jetson Orin) 표준화, OTA로 기능 판매 확장.</p></div>
+</div>
+
+<h2 class="sec">🚀 출시 로드맵 제안</h2>
+<div class="phase">
+<div><h4>Phase 1 (0-6개월) : MVP</h4><p style="font-size:13px;color:#cbd5e1">자율순찰, 장애물회피, 360스트리밍, 자동충전, 관제대시보드, 리포트 18개 P0 집중.</p></div>
+<div><h4>Phase 2 (6-12개월) : 차별화</h4><p style="font-size:13px;color:#cbd5e1">열화상, 이상음원, 쓰러짐감지, 엘리베이터 연동, 디지털트윈으로 수주 단가 40% 상승.</p></div>
+<div><h4>Phase 3 (12개월~) : 플랫폼</h4><p style="font-size:13px;color:#cbd5e1">Fleet協업, API 마켓, RaaS 구독, 예지보전으로 영업이익률 30% 목표.</p></div>
+</div>
+
+<h2 class="sec">🔍 기능 탐색 <span style="font-size:14px;color:#94a3b8">— 카테고리 필터 + 검색</span></h2>
+<input class="search" id="q" placeholder="검색: 예) 화재, 충전, 엘리베이터, RaaS..." onkeyup="filter()">
+<div class="filters" id="filters">
+<button class="active" onclick="setCat('all',this)">전체 50</button>
+<button onclick="setCat('nav',this)">A. 자율이동 (8)</button>
+<button onclick="setCat('ai',this)">B. AI 보안인지 (12)</button>
+<button onclick="setCat('safe',this)">C. 안전·재난 (8)</button>
+<button onclick="setCat('ops',this)">D. 관제·플릿 (9)</button>
+<button onclick="setCat('link',this)">E. 연동·확장 (6)</button>
+<button onclick="setCat('hw',this)">F. HW·신뢰성 (4)</button>
+<button onclick="setCat('biz',this)">G. BM·차별화 (3)</button>
+</div>
+<div class="grid" id="grid"></div>
+
+<footer>RokeyPatrol · ROS2 Humble · Nav2 · SROS2 · Jetson Orin · 5G · Confidential for C-Level · 2026</footer>
+</div>
+<script>
+const data=[
+['nav','1','자율 웨이포인트 순찰','지정 경로·시간표대로 24시간 순찰, 이탈시 자동복귀','Nav2','무인경비 인건비 60% 절감','P0','must'],
+['nav','2','SLAM 실내외 지도 생성','LiDAR+Vision 융합으로 5cm급 지도 자동생성·업데이트','SLAM Toolbox','신규 현장 1일내 투입','P0','must'],
+['nav','3','RTK-GPS 정밀 측위','실외 오차 2cm급, 실내외 끊김없는 측위 전환','robot_localization','캠퍼스·공장 야외 대응','P0','must'],
+['nav','4','동적 장애물 회피','사람·지게차·킥보드 예측 회피, 0.5m 근접 정지','Nav2 MPPI','중대사고 0건','P0','must'],
+['nav','5','자동 도킹 충전','배터리 20%시 귀환, 충전후 순찰 재개','Auto Dock','24시간 무중단','P0','must'],
+['nav','6','엘리베이터 층간 이동','엘리베이터 호출·탑승·층버튼 연동, 복수층 순찰','Elevator API','빌딩 수주 필수조건','P1',''],
+['nav','7','자동문·차단기 연동','출입문·주차차단기 ROS-IoT 개폐 신호 연동','IoT Bridge','막힘없는 순찰','P1',''],
+['nav','8','원격 개입 주행','관제사가 클릭-투-고 + 조이스틱 개입','Teleop','클레임 대응력','P0','must'],
+['ai','9','360° 4K 스트리밍','전방위 카메라 + 야간 IR, 관제 실시간 확인','image_transport','CCTV 사각지대 제거','P0','must'],
+['ai','10','침입자 탐지·추적','ROI 침입시 줌추적 + 스포트라이트 + 경고방송','YOLOv8 + DeepSORT','야간 침입 대응','P0','must'],
+['ai','11','쓰러진 사람 감지','낙상·실신 자세 3초내 감지 후 관제 SOS','Pose Estimation','중대재해 대응','P1',''],
+['ai','12','배회·이상행동 분석','동일구역 10분 배회, 달리기 등 패턴 알람','Behavior AI','범죄 사전예방','P1',''],
+['ai','13','번호판 인식 (ANPR)','차량 번호판 + 화이트/블랙리스트 대조','LPR Node','불법차량 통제','P1',''],
+['ai','14','안면 화이트리스트 출입관리','등록자 자동인사·미등록자 알림, 마스킹 저장','Face Recog','출입보안 무인화','P1',''],
+['ai','15','안전모·조끼 미착용 감지','산업현장 PPE 미준수 자동 적발','PPE Detection','안전과태료 예방','P1',''],
+['ai','16','불법주차·적치물 감지','금지 შეჩ구역 장시간 정차 촬영·방송','Parking AI','민원 50% 감소','P2','diff'],
+['ai','17','쓰레기투기·파손 감지','투기행위·그래피티·시설파손 전후 비교','Anomaly Det','관리소 만족도↑','P2','diff'],
+['ai','18','군중 밀집도 분석','5㎡당 인원수 히트맵, 압사위험 경고','Crowd Count','행사·캠퍼스 필수','P2','diff'],
+['ai','19','반려동물·야생동물 감지','공원 배변·멧돼지 출몰 알림','Pet AI','공원·골프장 특화','P2','diff'],
+['ai','20','프라이버시 자동 모자이크','얼굴·번호판 실시간 블러, 개인정보보호법 대응','Privacy Node','법적리스크 제거','P0','must'],
+['safe','21','열화상 야간 감지','-20~150℃ 열원 탐지, 완전암흑 인체식별 50m','Thermal Cam','야간 경비 핵심 USP','P1',''],
+['safe','22','화재·연기 조기감지','열+연기+불꽃 3중 감지, 119위치 자동송신','Fire Node','화재보험료 인하 근거','P0','must'],
+['safe','23','가스 누출 감지','CO·LPG·VOC 센서, 농도 임계치 환기·대피방송','Gas Sensor','공장 필수','P1',''],
+['safe','24','이상음원 감지','비명·유리깨짐·폭발음 방향추정 5°오차','Audio AI','CCTV 못보는 위험 감지','P1',''],
+['safe','25','환경 센싱 (온습도·미세먼지)','구역별 공기질 지도화, 공조연동','Env Node','ESG 리포트 활용','P2','diff'],
+['safe','26','다국어 확성기 경고','한·영·중·베트남어 자동방송 + 사이렌','TTS(pub)','외국인 공장 대응','P0','must'],
+['safe','27','양방향 화상 통화','위급시 관제-현장 즉시통화, 비상벨 대체','VoIP ROS','주민 체감안전↑','P0','must'],
+['safe','28','충돌시 자동정지·SOS','범퍼·초음파 이중안전, 충격시 1m 후진+보고','Safety PLC','PL법 대응','P0','must'],
+['ops','29','Fleet 관제 대시보드','다수로봇 위치·배터리·알람 한눈에, 웹기반','Fleet Mgr','관제 1인 10대 가능','P0','must'],
+['ops','30','디지털트윈 모니터링','3D 지도위에 로봇·이벤트 실시간 표시','RViz/Foxglove','임원 보고용 시각화','P1',''],
+['ops','31','순찰리포트 자동생성','일/주/월 PDF: 경로·이벤트·영상클립 포함','Report Gen','계약연장률 핵심','P0','must'],
+['ops','32','QR/NFC 체크포인트 인증','순찰완료 도장 자동기록, 조작불가','Checkpoint','경비감사 통과','P1',''],
+['ops','33','클라우드 영상보관 30일','이벤트 5초전 버퍼포함 저장, 암호화','Cloud Rec','분쟁증거 확보','P0','must'],
+['ops','34','OTA 무선 업데이트','ROS 노드별 무중단 업데이트, 기능상점','OTA Mgr','기능 유료판매 기반','P1',''],
+['ops','35','예지보전 진단','모터전류·진동·배터리 SOH로 고장 7일전 예측','Diagnostics','가동률 99%','P2','diff'],
+['ops','36','다중로봇 협업순찰','구역분할·호위·포위 대형, 1대 고장시 대체','Coordination','대형사이트 필수','P2','diff'],
+['ops','37','원격순찰 예약·스케줄러','요일·공휴일·행사별 자동 스케줄','Scheduler','운영무인화','P1',''],
+['link','38','5G/LTE+WiFi 자동절체','음영지역 끊김 0.5초내 절체, VPN 암호화','5G Failover','통신두절 방지','P0','must'],
+['link','39','엣지AI (Jetson Orin)','온디바이스 30fps 추론, 개인정보 외부유출 Zero','Edge AI','보안·속도 확보','P0','must'],
+['link','40','VMS/PSIM/ERP 연동 API','기존 CCTV·출입·설비시스템 REST/gRPC 연동','Open API','SI 수주 승률↑','P1',''],
+['link','41','비상벨·사이렌 연동','비상벨 누르면 최근접 로봇 30초내 출동','Alarm Link','지자체 사업 가점','P1',''],
+['link','42','기상·재난문자 연동','호우·미세먼지시 순찰강화·대피유도 자동전환','Weather API','공공수요 대응','P2','diff'],
+['link','43','사이버보안 (SROS2)','노드간 TLS, 키관리, 침입차단 로그감사','SROS2','공공조달 필수','P0','must'],
+['hw','44','IP65 방수방진·전천후','우천·폭설·-15~45℃ 동작, 자동 와이퍼','Rugged HW','실외사업 가능','P1',''],
+['hw','45','야간 스포트라이트 추적','침입자 자동조명 100m, 경고효과','Spotlight','야간抑止力','P1',''],
+['hw','46','배터리 스왑 시스템','3분 교체로 24시간 가동, 충전거치대 불필요','Swap Pack','대규모사이트 효율','P2','diff'],
+['hw','47','안내 디스플레이 탑재','10인치 화면으로 길안내·공지·광고 송출','Display','광고수익 부가창출','P2','diff'],
+['biz','48','RaaS 구독 과금','월정액+이벤트건별, 가동률 SLA 99% 보장','Billing','반복매출 핵심','P0','must'],
+['biz','49','음성명령 인터랙션','“이쪽 도와줘” 인식 후 유도·에스코트','STT/LLM','주민친화 이미지','P2','diff'],
+['biz','50','보험·ESG 리포트 패키지','순찰데이터로 화재보험 할인·ESG안전지표 제출','ESG Pack','C-level 설득 카드','P2','diff'],
+];
+let cur='all';
+function render(){
+const q=document.getElementById('q').value.toLowerCase();
+const g=document.getElementById('grid');g.innerHTML='';
+data.filter(d=>(cur==='all'||d[0]===cur)&&(d[2]+d[3]+d[4]).toLowerCase().includes(q)).forEach(d=>{
+const el=document.createElement('div');el.className='feat '+d[7];
+el.innerHTML=`<span class="pri ${d[6]}">${d[6]==='P0'?'P0 필수':d[6]==='P1'?'P1 우선':'P2 차별화'}</span><div class="num">NO.${d[1]} · ${catName(d[0])}</div><h4>${d[2]}</h4><p class="desc">${d[3]}</p><div class="meta"><span class="tag ros">ROS: ${d[4]}</span><span class="tag biz">${d[5]}</span></div>`;
+g.appendChild(el);
+});
+}
+function catName(c){return {nav:'자율이동',ai:'AI보안인지',safe:'안전재난',ops:'관제플릿',link:'연동확장',hw:'HW신뢰성',biz:'BM차별화'}[c]}
+function setCat(c,btn){cur=c;document.querySelectorAll('.filters button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render()}
+function filter(){render()}
+render();
+</script>
+</body>
+</html>

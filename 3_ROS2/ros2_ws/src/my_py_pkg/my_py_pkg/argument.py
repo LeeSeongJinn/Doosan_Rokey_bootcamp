@@ -4,7 +4,7 @@ import rclpy
 
 from rclpy.node import Node
 
-from my_interface.msg import ArithmeticArgument
+from my_interfaces.msg import ArithmeticArgument
 
 from rcl_interfaces.msg import SetParametersResult
 
