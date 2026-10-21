@@ -5,7 +5,7 @@ from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallb
 import time
 
 # 설정에 따라 실행 방식을 바꿀 수 있는 플래그
-USE_MULTI = True      # True면 MultiThreadedExecutor 사용, False면 단일 스레드
+USE_MULTI = True     # True면 MultiThreadedExecutor 사용, False면 단일 스레드
 SPLITGROUP = True     # True면 서로 다른 콜백 그룹으로 분리
 
 class ExecutorDemo(Node):

@@ -11,7 +11,7 @@ class AddServer(Node):
 
     # 서비스 서버 생성
     self.create_service(AddTwoInts, 'add_two_ints', self.on_request)
-
+    
   def on_request(self, req, res):
     sum_val = req.a + req.b
     res.sum = sum_val

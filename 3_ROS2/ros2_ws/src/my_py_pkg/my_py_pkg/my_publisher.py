@@ -6,7 +6,7 @@ from std_msgs.msg import String
 
 class MyPublisher(Node):
     def __init__(self):
-        super().__init__('my_publisher')
+        super().__init__('my_publisher') #부모클래스인 Node의 초기화 함수를 호출 , 노드의 이름을 my_publisher
         self.num=1        
         #pub
         self.pub=self.create_publisher(String, 'chatter', 10) #메세지 타입, 토픽명, QoS 설정

@@ -9,7 +9,8 @@ class MySubscriber(Node):
         super().__init__('my_subscriber')
         
         self.create_subscription(String,'chatter',self.cb,10)
-
+        #subsciption을 사용해서 메시지를 받는데 형식은 Stfing, 토픽 이름은 chatter, 콜백은 self.cb, qos는 10으로 한다.
+        
     def cb(self,msg):
         #전달된 메세지 출력
         #수신함+msg ->logger로 출력

@@ -38,7 +38,10 @@ setup(
             'count_up_client=my_py_pkg.count_up_client:main',
             'calc_server=my_py_pkg.calc_server:main',
             'argument=my_py_pkg.argument:main',
-            'calculator=my_py_pkg.calculator:main'
+            'calculator=my_py_pkg.calculator:main',
+            'qos_talker=my_py_pkg.qos_talker:main',
+            'qos_listener=my_py_pkg.qos_listener:main',
+            'map_pub=my_py_pkg.map_pub:main',
 
         ],
     },
