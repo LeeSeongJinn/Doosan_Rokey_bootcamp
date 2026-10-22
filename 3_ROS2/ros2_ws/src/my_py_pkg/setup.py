@@ -42,6 +42,14 @@ setup(
             'qos_talker=my_py_pkg.qos_talker:main',
             'qos_listener=my_py_pkg.qos_listener:main',
             'map_pub=my_py_pkg.map_pub:main',
+            'param_demo=my_py_pkg.param_demo:main',
+            'static_sensor_tf=my_py_pkg.static_sensor_tf:main',
+            'wheel_driver=my_py_pkg.wheel_driver:main',
+            'fake_camera=my_py_pkg.fake_camera:main',
+            'camera_mount=my_py_pkg.camera_mount:main',
+            'chaser=my_py_pkg.chaser:main',
+            'tf_reader=my_py_pkg.tf_reader:main',
+
 
         ],
     },

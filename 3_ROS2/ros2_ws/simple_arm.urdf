@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<robot name="simple_arm">
+
+  <!-- 링크: 몸통 -->
+  <link name="base_link">
+    <visual>
+      <geometry><box size="0.3 0.3 0.1"/></geometry>
+    </visual>
+  </link>
+
+  <!-- 링크: 팔 -->
+  <link name="arm_link">
+    <visual>
+      <geometry><cylinder radius="0.03" length="0.4"/></geometry>
+    </visual>
+  </link>
+
+  <!-- 조인트: 몸통과 팔을 잇는 회전 관절 -->
+  <joint name="shoulder" type="revolute">
+    <parent link="base_link"/>
+    <child  link="arm_link"/>
+    <origin xyz="0 0 0.3" rpy="0 0 0"/>   <!-- 팔이 몸통에서 0.3m 위 -->
+    <axis xyz="0 1 0"/>                    <!-- y축을 중심으로 회전 -->
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+</robot>

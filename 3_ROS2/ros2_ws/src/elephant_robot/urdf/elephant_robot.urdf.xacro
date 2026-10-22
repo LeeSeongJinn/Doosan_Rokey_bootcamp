@@ -1,0 +1,621 @@
+<?xml version="1.0"?>
+<!--
+  elephant_robot.urdf.xacro
+  ==================================================================
+  Precise elephant-shaped quadruped robot.
+
+  Kinematic structure (23 DoF):
+    base_link (torso)
+      |- neck_pitch  -> neck_link -> neck_yaw -> head_link
+      |                                          |- left_ear_flare  -> left_ear_link
+      |                                          |- right_ear_flare -> right_ear_link
+      |                                          |- trunk_base_pitch -> trunk_seg1_link
+      |                                          |     |- trunk_1_pitch -> trunk_seg2_link
+      |                                          |     |     |- trunk_2_pitch -> trunk_seg3_link
+      |                                          |     |     |     |- trunk_3_pitch -> trunk_seg4_link
+      |                                          |     |     |     |     |- trunk_4_pitch -> trunk_tip_link
+      |                                          |- left_tusk_link / right_tusk_link (fixed)
+      |                                          |- camera_link -> camera_optical_frame (fixed)
+      |- tail_pitch -> tail_base_link -> tail_swing -> tail_tip_link
+      |- lidar_link (fixed)
+      |- fl/fl_rear_hip_abduction -> *_thigh_link -> *_shank_link -> *_foot_link
+      |- fr_..., rl_..., rr_...
+
+  All dimensions in metres / radians.  The standing pose (all joints = 0)
+  has the feet on the ground at z = 0 and the trunk tip just above it.
+-->
+<robot name="elephant_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:property name="MESH" value="package://elephant_robot/meshes"/>
+
+  <!-- ================= geometry constants ================= -->
+  <xacro:property name="hip_x_front" value="0.470"/>
+  <xacro:property name="hip_x_rear"  value="-0.560"/>
+  <xacro:property name="hip_y"       value="0.250"/>
+  <xacro:property name="hip_z_front" value="0.780"/>
+  <xacro:property name="hip_z_rear"  value="0.790"/>
+  <xacro:property name="thigh_len"   value="0.380"/>
+  <xacro:property name="shank_len"   value="0.340"/>
+  <xacro:property name="foot_h"      value="0.060"/>
+  <xacro:property name="knee_rear"   value="0.220"/>
+
+  <xacro:property name="neck_x"     value="0.745"/>
+  <xacro:property name="neck_z"     value="0.930"/>
+  <xacro:property name="neck_len"   value="0.260"/>
+  <xacro:property name="neck_pitch" value="0.250"/>
+
+  <!-- ================= materials ================= -->
+  <material name="elephant_grey">
+    <color rgba="0.42 0.42 0.45 1.0"/>
+  </material>
+  <material name="elephant_skin_inner">
+    <color rgba="0.58 0.54 0.52 1.0"/>
+  </material>
+  <material name="elephant_dark">
+    <color rgba="0.26 0.26 0.28 1.0"/>
+  </material>
+  <material name="black">
+    <color rgba="0.03 0.03 0.03 1.0"/>
+  </material>
+  <material name="ivory">
+    <color rgba="0.92 0.90 0.80 1.0"/>
+  </material>
+  <material name="eye_white">
+    <color rgba="0.94 0.93 0.90 1.0"/>
+  </material>
+  <material name="eye_black">
+    <color rgba="0.01 0.01 0.01 1.0"/>
+  </material>
+  <material name="sensor_grey">
+    <color rgba="0.15 0.16 0.18 1.0"/>
+  </material>
+
+  <!-- ================= inertia helpers ================= -->
+  <xacro:macro name="box_inertia" params="m x y z">
+    <inertial>
+      <mass value="${m}"/>
+      <inertia ixx="${(m/12.0)*(y*y + z*z)}" ixy="0.0" ixz="0.0"
+               iyy="${(m/12.0)*(x*x + z*z)}" iyz="0.0" izz="${(m/12.0)*(x*x + y*y)}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="cyl_inertia" params="m r h">
+    <inertial>
+      <mass value="${m}"/>
+      <inertia ixx="${(m/12.0)*(3.0*r*r + h*h)}" ixy="0.0" ixz="0.0"
+               iyy="${(m/12.0)*(3.0*r*r + h*h)}" iyz="0.0" izz="${(m/2.0)*(r*r)}"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- ==================================================================
+       TORSO
+       ================================================================== -->
+  <!-- ==================================================================
+       ROOT FRAME
+       KDL cannot use a root link that carries inertia, so the world frame
+       "base_link" is a pure frame and the torso hangs off it as a child.
+       ================================================================== -->
+  <link name="base_link"/>
+
+  <joint name="base_to_torso" type="fixed">
+    <parent link="base_link"/>
+    <child link="torso_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="torso_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="${MESH}/body.stl"/></geometry>
+      <material name="elephant_grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 1.070" rpy="0 ${math.pi/2} 0"/>
+      <geometry><cylinder radius="0.340" length="1.300"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="130.0"/>
+      <origin xyz="0 0 1.070" rpy="0 0 0"/>
+      <inertia ixx="10.942" ixy="0.0" ixz="0.0" iyy="27.167" iyz="0.0" izz="26.243"/>
+    </inertial>
+  </link>
+
+  <!-- ==================================================================
+       NECK + HEAD
+       ================================================================== -->
+  <link name="neck_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="${MESH}/neck.stl"/></geometry>
+      <material name="elephant_grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0.130 0 0" rpy="0 ${math.pi/2} 0"/>
+      <geometry><cylinder radius="0.190" length="0.260"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="12.0"/>
+      <origin xyz="0.130 0 0" rpy="0 0 0"/>
+      <inertia ixx="1.231" ixy="0.0" ixz="0.0" iyy="1.231" iyz="0.0" izz="0.217"/>
+    </inertial>
+  </link>
+
+  <joint name="neck_pitch" type="revolute">
+    <parent link="torso_link"/>
+    <child link="neck_link"/>
+    <origin xyz="${neck_x} 0 ${neck_z}" rpy="0 ${-neck_pitch} 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-0.50" upper="0.60" effort="400.0" velocity="1.0"/>
+    <dynamics damping="12.0" friction="2.0"/>
+  </joint>
+
+  <link name="head_link">
+    <visual>
+      <origin xyz="-0.085 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="${MESH}/head.stl"/></geometry>
+      <material name="elephant_grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0.170 0 -0.020" rpy="0 0 0"/>
+      <geometry><box size="0.500 0.460 0.500"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="30.0"/>
+      <origin xyz="0.170 0 -0.020" rpy="0 0 0"/>
+      <inertia ixx="3.396" ixy="0.0" ixz="0.0" iyy="3.396" iyz="0.0" izz="3.146"/>
+    </inertial>
+
+    <!-- eyes -->
+    <visual>
+      <origin xyz="0.100  0.228 0.050" rpy="0 0 0"/>
+      <geometry><sphere radius="0.026"/></geometry>
+      <material name="eye_white"/>
+    </visual>
+    <visual>
+      <origin xyz="0.104  0.246 0.052" rpy="0 0 0"/>
+      <geometry><sphere radius="0.013"/></geometry>
+      <material name="eye_black"/>
+    </visual>
+    <visual>
+      <origin xyz="0.100 -0.228 0.050" rpy="0 0 0"/>
+      <geometry><sphere radius="0.026"/></geometry>
+      <material name="eye_white"/>
+    </visual>
+    <visual>
+      <origin xyz="0.104 -0.246 0.052" rpy="0 0 0"/>
+      <geometry><sphere radius="0.013"/></geometry>
+      <material name="eye_black"/>
+    </visual>
+  </link>
+
+  <joint name="neck_yaw" type="revolute">
+    <parent link="neck_link"/>
+    <child link="head_link"/>
+    <origin xyz="${neck_len} 0 0" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-0.80" upper="0.80" effort="300.0" velocity="1.2"/>
+    <dynamics damping="10.0" friction="1.5"/>
+  </joint>
+
+  <!-- ==================================================================
+       EARS  (mirrored meshes, flared outwards by 0.30 rad)
+       ================================================================== -->
+  <link name="left_ear_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="${MESH}/ear.stl"/></geometry>
+      <material name="elephant_skin_inner"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0.100 -0.260" rpy="0 0 0"/>
+      <geometry><box size="0.040 0.220 0.520"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="2.0"/>
+      <origin xyz="0 0.110 -0.260" rpy="0 0 0"/>
+      <inertia ixx="0.096" ixy="0.0" ixz="0.0" iyy="0.093" iyz="0.0" izz="0.019"/>
+    </inertial>
+  </link>
+
+  <joint name="left_ear_flare" type="revolute">
+    <parent link="head_link"/>
+    <child link="left_ear_link"/>
+    <origin xyz="0.020 0.225 0.100" rpy="0.300 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-0.60" upper="0.60" effort="60.0" velocity="2.0"/>
+    <dynamics damping="2.0" friction="0.4"/>
+  </joint>
+
+  <link name="right_ear_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="${MESH}/ear_right.stl"/></geometry>
+      <material name="elephant_skin_inner"/>
+    </visual>
+    <collision>
+      <origin xyz="0 -0.100 -0.260" rpy="0 0 0"/>
+      <geometry><box size="0.040 0.220 0.520"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="2.0"/>
+      <origin xyz="0 -0.110 -0.260" rpy="0 0 0"/>
+      <inertia ixx="0.096" ixy="0.0" ixz="0.0" iyy="0.093" iyz="0.0" izz="0.019"/>
+    </inertial>
+  </link>
+
+  <joint name="right_ear_flare" type="revolute">
+    <parent link="head_link"/>
+    <child link="right_ear_link"/>
+    <origin xyz="0.020 -0.225 0.100" rpy="-0.300 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-0.60" upper="0.60" effort="60.0" velocity="2.0"/>
+    <dynamics damping="2.0" friction="0.4"/>
+  </joint>
+
+  <!-- ==================================================================
+       TUSKS
+       ================================================================== -->
+  <link name="left_tusk_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="${MESH}/tusk_left.stl"/></geometry>
+      <material name="ivory"/>
+    </visual>
+    <collision>
+      <origin xyz="0.450 0.090 -0.110" rpy="0 0 0"/>
+      <geometry><box size="0.360 0.060 0.060"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="2.5"/>
+      <origin xyz="0.450 0.090 -0.110" rpy="0 0 0"/>
+      <inertia ixx="0.010" ixy="0.0" ixz="0.0" iyy="0.122" iyz="0.0" izz="0.122"/>
+    </inertial>
+  </link>
+
+  <joint name="head_to_left_tusk" type="fixed">
+    <parent link="head_link"/>
+    <child link="left_tusk_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="right_tusk_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="${MESH}/tusk_right.stl"/></geometry>
+      <material name="ivory"/>
+    </visual>
+    <collision>
+      <origin xyz="0.450 -0.090 -0.110" rpy="0 0 0"/>
+      <geometry><box size="0.360 0.060 0.060"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="2.5"/>
+      <origin xyz="0.450 -0.090 -0.110" rpy="0 0 0"/>
+      <inertia ixx="0.010" ixy="0.0" ixz="0.0" iyy="0.122" iyz="0.0" izz="0.122"/>
+    </inertial>
+  </link>
+
+  <joint name="head_to_right_tusk" type="fixed">
+    <parent link="head_link"/>
+    <child link="right_tusk_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ==================================================================
+       TRUNK  (5 segments, hanging down and curling slightly forward)
+       ================================================================== -->
+  <xacro:macro name="trunk_segment" params="name parent joint axis_y mesh r0 r1 seg_len mass ox oy oz rpy_y">
+    <link name="${name}">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry><mesh filename="${MESH}/${mesh}"/></geometry>
+        <material name="elephant_grey"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${-seg_len/2.0}" rpy="0 0 0"/>
+        <geometry><cylinder radius="${(r0+r1)/2.0}" length="${seg_len}"/></geometry>
+      </collision>
+      <inertial>
+        <mass value="${mass}"/>
+        <origin xyz="0 0 ${-seg_len/2.0}" rpy="0 0 0"/>
+        <inertia ixx="${(mass/12.0)*(3.0*r0*r0 + seg_len*seg_len)}" ixy="0.0" ixz="0.0"
+                 iyy="${(mass/12.0)*(3.0*r0*r0 + seg_len*seg_len)}" iyz="0.0" izz="${(mass/2.0)*r0*r0}"/>
+      </inertial>
+    </link>
+    <joint name="${joint}" type="revolute">
+      <parent link="${parent}"/>
+      <child link="${name}"/>
+      <origin xyz="${ox} ${oy} ${oz}" rpy="0 ${rpy_y} 0"/>
+      <axis xyz="0 ${axis_y} 0"/>
+      <limit lower="-0.70" upper="0.70" effort="120.0" velocity="1.5"/>
+      <dynamics damping="4.0" friction="0.6"/>
+    </joint>
+  </xacro:macro>
+
+  <!-- segment 1 hangs vertically (compensates the upward head pitch) -->
+  <xacro:trunk_segment name="trunk_seg1_link" parent="head_link" joint="trunk_base_pitch"
+                        axis_y="1" mesh="trunk_seg1.stl" r0="0.088" r1="0.076"
+                        seg_len="0.240" mass="12.0" ox="0.315" oy="0.0" oz="-0.075" rpy_y="${neck_pitch}"/>
+
+  <xacro:trunk_segment name="trunk_seg2_link" parent="trunk_seg1_link" joint="trunk_1_pitch"
+                        axis_y="1" mesh="trunk_seg2.stl" r0="0.076" r1="0.062"
+                        seg_len="0.240" mass="8.0" ox="0.0" oy="0.0" oz="-0.240" rpy_y="-0.120"/>
+
+  <xacro:trunk_segment name="trunk_seg3_link" parent="trunk_seg2_link" joint="trunk_2_pitch"
+                        axis_y="1" mesh="trunk_seg3.stl" r0="0.062" r1="0.049"
+                        seg_len="0.220" mass="5.0" ox="0.0" oy="0.0" oz="-0.240" rpy_y="-0.120"/>
+
+  <xacro:trunk_segment name="trunk_seg4_link" parent="trunk_seg3_link" joint="trunk_3_pitch"
+                        axis_y="1" mesh="trunk_seg4.stl" r0="0.049" r1="0.037"
+                        seg_len="0.180" mass="3.5" ox="0.0" oy="0.0" oz="-0.220" rpy_y="-0.130"/>
+
+  <xacro:trunk_segment name="trunk_tip_link" parent="trunk_seg4_link" joint="trunk_4_pitch"
+                        axis_y="1" mesh="trunk_tip.stl" r0="0.037" r1="0.023"
+                        seg_len="0.140" mass="2.0" ox="0.0" oy="0.0" oz="-0.180" rpy_y="-0.300"/>
+
+  <!-- ==================================================================
+       TAIL
+       ================================================================== -->
+  <link name="tail_base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="${MESH}/tail_seg.stl"/></geometry>
+      <material name="elephant_grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 -0.210" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.032" length="0.420"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="2.5"/>
+      <origin xyz="0 0 -0.210" rpy="0 0 0"/>
+      <inertia ixx="0.038" ixy="0.0" ixz="0.0" iyy="0.038" iyz="0.0" izz="0.001"/>
+    </inertial>
+  </link>
+
+  <joint name="tail_pitch" type="revolute">
+    <parent link="torso_link"/>
+    <child link="tail_base_link"/>
+    <origin xyz="-0.710 0 1.050" rpy="0 0.060 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-0.60" upper="0.60" effort="40.0" velocity="2.0"/>
+    <dynamics damping="1.0" friction="0.3"/>
+  </joint>
+
+  <link name="tail_tip_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="${MESH}/tuft.stl"/></geometry>
+      <material name="elephant_dark"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 -0.080" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.042" length="0.160"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.9"/>
+      <origin xyz="0 0 -0.080" rpy="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+  </link>
+
+  <joint name="tail_swing" type="revolute">
+    <parent link="tail_base_link"/>
+    <child link="tail_tip_link"/>
+    <origin xyz="0 0 -0.420" rpy="0 0.100 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-0.60" upper="0.60" effort="30.0" velocity="2.5"/>
+    <dynamics damping="0.8" friction="0.2"/>
+  </joint>
+
+  <!-- ==================================================================
+       LEGS  (hip abduction + hip pitch + knee pitch, 3 DoF per leg)
+       ================================================================== -->
+  <xacro:macro name="elephant_leg" params="name side hip_x hip_z knee_pitch upper_mesh lower_mesh">
+    <xacro:property name="sy" value="${float(side) * hip_y}"/>
+    <xacro:property name="sgn" value="${float(side)}"/>
+
+    <!-- hip housing -->
+    <link name="${name}_hip_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry><sphere radius="0.115"/></geometry>
+        <material name="elephant_dark"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry><sphere radius="0.115"/></geometry>
+      </collision>
+      <inertial>
+        <mass value="3.0"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <inertia ixx="0.016" ixy="0.0" ixz="0.0" iyy="0.016" iyz="0.0" izz="0.016"/>
+      </inertial>
+    </link>
+
+    <joint name="${name}_hip_abduction" type="revolute">
+      <parent link="torso_link"/>
+      <child link="${name}_hip_link"/>
+      <origin xyz="${hip_x} ${sy} ${hip_z}" rpy="0 0 0"/>
+      <axis xyz="1 0 0"/>
+      <limit lower="-0.35" upper="0.35" effort="1200.0" velocity="1.5"/>
+      <dynamics damping="60.0" friction="6.0"/>
+    </joint>
+
+    <!-- thigh -->
+    <link name="${name}_thigh_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry><mesh filename="${MESH}/${upper_mesh}"/></geometry>
+        <material name="elephant_grey"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${-thigh_len/2.0}" rpy="0 0 0"/>
+        <geometry><cylinder radius="0.110" length="${thigh_len}"/></geometry>
+      </collision>
+      <inertial>
+        <mass value="18.0"/>
+        <origin xyz="0 0 ${-thigh_len/2.0}" rpy="0 0 0"/>
+        <inertia ixx="0.222" ixy="0.0" ixz="0.0" iyy="0.222" iyz="0.0" izz="0.109"/>
+      </inertial>
+    </link>
+
+    <joint name="${name}_hip_pitch" type="revolute">
+      <parent link="${name}_hip_link"/>
+      <child link="${name}_thigh_link"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="-0.90" upper="0.90" effort="1500.0" velocity="1.8"/>
+      <dynamics damping="70.0" friction="6.0"/>
+    </joint>
+
+    <!-- shank -->
+    <link name="${name}_shank_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry><mesh filename="${MESH}/${lower_mesh}"/></geometry>
+        <material name="elephant_grey"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${-shank_len/2.0}" rpy="0 0 0"/>
+        <geometry><cylinder radius="0.094" length="${shank_len}"/></geometry>
+      </collision>
+      <inertial>
+        <mass value="10.0"/>
+        <origin xyz="0 0 ${-shank_len/2.0}" rpy="0 0 0"/>
+        <inertia ixx="0.106" ixy="0.0" ixz="0.0" iyy="0.106" iyz="0.0" izz="0.046"/>
+      </inertial>
+    </link>
+
+    <joint name="${name}_knee_pitch" type="revolute">
+      <parent link="${name}_thigh_link"/>
+      <child link="${name}_shank_link"/>
+      <origin xyz="0 0 ${-thigh_len}" rpy="0 ${knee_pitch} 0"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="-0.10" upper="1.80" effort="1200.0" velocity="1.8"/>
+      <dynamics damping="50.0" friction="5.0"/>
+    </joint>
+
+    <!-- foot + toenails -->
+    <link name="${name}_foot_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry><mesh filename="${MESH}/foot.stl"/></geometry>
+        <material name="elephant_dark"/>
+      </visual>
+      <visual>
+        <origin xyz="0.092  ${sgn*0.062} -0.012" rpy="0 0 0"/>
+        <geometry><mesh filename="${MESH}/nail.stl"/></geometry>
+        <material name="ivory"/>
+      </visual>
+      <visual>
+        <origin xyz="0.092  ${sgn*0.021} -0.012" rpy="0 0 0"/>
+        <geometry><mesh filename="${MESH}/nail.stl"/></geometry>
+        <material name="ivory"/>
+      </visual>
+      <visual>
+        <origin xyz="0.092 ${-sgn*0.021} -0.012" rpy="0 0 0"/>
+        <geometry><mesh filename="${MESH}/nail.stl"/></geometry>
+        <material name="ivory"/>
+      </visual>
+      <visual>
+        <origin xyz="0.092 ${-sgn*0.062} -0.012" rpy="0 0 0"/>
+        <geometry><mesh filename="${MESH}/nail.stl"/></geometry>
+        <material name="ivory"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${-foot_h/2.0}" rpy="0 0 0"/>
+        <geometry><cylinder radius="0.108" length="${foot_h}"/></geometry>
+      </collision>
+      <inertial>
+        <mass value="3.0"/>
+        <origin xyz="0 0 ${-foot_h/2.0}" rpy="0 0 0"/>
+        <inertia ixx="0.010" ixy="0.0" ixz="0.0" iyy="0.010" iyz="0.0" izz="0.019"/>
+      </inertial>
+    </link>
+
+    <joint name="${name}_ankle" type="fixed">
+      <parent link="${name}_shank_link"/>
+      <child link="${name}_foot_link"/>
+      <origin xyz="0 0 ${-shank_len}" rpy="0 0 0"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:elephant_leg name="fl" side="1"  hip_x="${hip_x_front}" hip_z="${hip_z_front}"
+                       knee_pitch="0.0" upper_mesh="leg_upper_front.stl" lower_mesh="leg_lower_front.stl"/>
+  <xacro:elephant_leg name="fr" side="-1" hip_x="${hip_x_front}" hip_z="${hip_z_front}"
+                       knee_pitch="0.0" upper_mesh="leg_upper_front.stl" lower_mesh="leg_lower_front.stl"/>
+  <xacro:elephant_leg name="rl" side="1"  hip_x="${hip_x_rear}"  hip_z="${hip_z_rear}"
+                       knee_pitch="${knee_rear}" upper_mesh="leg_upper_rear.stl" lower_mesh="leg_lower_rear.stl"/>
+  <xacro:elephant_leg name="rr" side="-1" hip_x="${hip_x_rear}"  hip_z="${hip_z_rear}"
+                       knee_pitch="${knee_rear}" upper_mesh="leg_upper_rear.stl" lower_mesh="leg_lower_rear.stl"/>
+
+  <!-- ==================================================================
+       SENSORS
+       ================================================================== -->
+  <link name="camera_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.050 0.070 0.040"/></geometry>
+      <material name="sensor_grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.050 0.070 0.040"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.2"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="0.00017" ixy="0.0" ixz="0.0" iyy="0.00016" iyz="0.0" izz="0.00012"/>
+    </inertial>
+  </link>
+
+  <joint name="head_to_camera" type="fixed">
+    <parent link="head_link"/>
+    <child link="camera_link"/>
+    <origin xyz="0.120 0 0.285" rpy="0 0 0"/>
+  </joint>
+
+  <link name="camera_optical_frame">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.010 0.010 0.010"/></geometry>
+      <material name="sensor_grey"/>
+    </visual>
+    <inertial>
+      <mass value="0.001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0.0" ixz="0.0" iyy="1e-6" iyz="0.0" izz="1e-6"/>
+    </inertial>
+  </link>
+
+  <joint name="camera_optical_joint" type="fixed">
+    <parent link="camera_link"/>
+    <child link="camera_optical_frame"/>
+    <origin xyz="0.030 0 0" rpy="${-math.pi/2} 0 ${-math.pi/2}"/>
+  </joint>
+
+  <link name="lidar_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.050" length="0.050"/></geometry>
+      <material name="sensor_grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.050" length="0.050"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.5"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="0.00052" ixy="0.0" ixz="0.0" iyy="0.00052" iyz="0.0" izz="0.00052"/>
+    </inertial>
+  </link>
+
+  <joint name="base_to_lidar" type="fixed">
+    <parent link="torso_link"/>
+    <child link="lidar_link"/>
+    <origin xyz="0.100 0 1.440" rpy="0 0 0"/>
+  </joint>
+
+</robot>
